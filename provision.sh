@@ -9,6 +9,7 @@ fi
 apt-get install -y \
     bison \
     build-essential \
+    chrpath \
     cmake \
     curl \
     g++-4.7 \
