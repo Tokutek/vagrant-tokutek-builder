@@ -83,7 +83,7 @@ cmake --build . --target install
 popd
 
 cd mongo
-scons --cc=gcc-4.7 --cxx=g++-4.7 --mute --release .
+scons --cc=gcc-4.7 --cxx=g++-4.7 --mute --release dist
 EOF
 chmod +x build-tokumx.sh
 
