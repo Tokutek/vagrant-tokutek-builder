@@ -98,11 +98,11 @@ Welcome to the Tokutek build machine!
 
 To build a TokuMX release, please make sure each repository (ft-index, and
 mongo, and backup-community if you're building from master) has the right
-branch or tag checked out.  For example, to build version 1.0.3, you can
-do this:
+branch or tag checked out.  For example, to build the head of the 1.0
+branch, you can do this:
 
- $ (cd ft-index; git checkout tokumx-1.0.3)
- $ (cd mongo; git checkout 1.0.3)
+ $ (cd ft-index; git checkout releases/tokumx-1.0)
+ $ (cd mongo; git checkout releases/1.0)
 
 Then, just run './build-tokumx.sh'.  It'll build everything with the right
 optimizations.
