@@ -38,9 +38,19 @@ function git_get {
     if [[ -d $1 ]]; then
         pushd $1
         git pull
+        errorcode=$?
+        if [[ $errorcode != 0 ]]; then
+            echo "error $errorcode running git pull" 1>&2
+            exit $errorcode
+        fi
         popd
     else
         git clone http://github.com/Tokutek/$1
+        errorcode=$?
+        if [[ $errorcode != 0 ]]; then
+            echo "error $errorcode running git clone" 1>&2
+            exit $errorcode
+        fi
     fi
 }
 
