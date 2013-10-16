@@ -3,6 +3,12 @@
 mkdir -p /data/db
 chown vagrant -R /data
 
+# Change "us" to another country if you live there
+COUNTRY=us
+if ! grep -q $COUNTRY'\.archive\.ubuntu\.com' /etc/apt/sources.list; then
+    sed -i'' -e 's/[a-z]*\.archive\.ubuntu\.com/'$COUNTRY'.archive.ubuntu.com/g' /etc/apt/sources.list
+fi
+
 if [ ! -f /var/cache/apt/pkgcache.bin ] || /usr/bin/find /etc/apt/* -cnewer /var/cache/apt/pkgcache.bin | /bin/grep . > /dev/null; then
     apt-get update
 fi
