@@ -35,8 +35,8 @@ if ! grep -q 'gcc-4.7' .bash_profile; then
 fi
 
 function git_get {
-    if [[ -d $1 ]]; then
-        pushd $1
+    if [[ -d /vagrant/$1 ]]; then
+        pushd /vagrant/$1
         git pull
         errorcode=$?
         if [[ $errorcode != 0 ]]; then
@@ -45,7 +45,7 @@ function git_get {
         fi
         popd
     else
-        git clone http://github.com/Tokutek/$1
+        git clone http://github.com/Tokutek/$1 /vagrant/$1
         errorcode=$?
         if [[ $errorcode != 0 ]]; then
             echo "error $errorcode running git clone" 1>&2
@@ -57,35 +57,35 @@ function git_get {
 git_get mongo
 git_get backup-community
 git_get ft-index
-pushd ft-index/third_party
+pushd /vagrant/ft-index/third_party
 git_get jemalloc
 popd
 
 git_get ft-engine
 
-cat <<EOF >build-tokumx.sh
+cat <<EOF >/vagrant/build-tokumx.sh
 #!/bin/bash
 
 set -e
 
 . \$HOME/.bash_profile
 
-mkdir -p backup-community/backup/opt
-pushd backup-community/backup/opt
+mkdir -p /vagrant/backup-community/backup/opt
+pushd /vagrant/backup-community/backup/opt
 cmake \
     -D CMAKE_BUILD_TYPE=Release \
-    -D CMAKE_INSTALL_PREFIX=~/mongo/src/third_party/tokubackup \
+    -D CMAKE_INSTALL_PREFIX=/vagrant/mongo/src/third_party/tokubackup \
     -D HOT_BACKUP_LIBNAME=HotBackup \
     -D BACKUP_HAS_PARENT=OFF \
     ..
 cmake --build . --target install
 popd
 
-mkdir -p ft-index/opt
-pushd ft-index/opt
+mkdir -p /vagrant/ft-index/opt
+pushd /vagrant/ft-index/opt
 cmake \
     -D CMAKE_BUILD_TYPE=Release \
-    -D CMAKE_INSTALL_PREFIX=~/mongo/src/third_party/tokukv \
+    -D CMAKE_INSTALL_PREFIX=/vagrant/mongo/src/third_party/tokukv \
     -D BUILD_TESTING=OFF \
     -D USE_VALGRIND=OFF \
     -D USE_BDB=OFF \
@@ -101,9 +101,9 @@ popd
 cd mongo
 scons --cc=gcc-4.7 --cxx=g++-4.7 --mute --release dist
 EOF
-chmod +x build-tokumx.sh
+chmod +x /vagrant/build-tokumx.sh
 
-chown vagrant -R mongo backup-community ft-index ft-engine build-tokumx.sh .bash_profile
+chown vagrant -R /vagrant/mongo /vagrant/backup-community /vagrant/ft-index /vagrant/ft-engine /vagrant/build-tokumx.sh .bash_profile
 
 touch /etc/motd.tail
 if ! grep -q Tokutek /etc/motd.tail; then
@@ -116,6 +116,7 @@ To build a TokuMX release, please make sure each repository (ft-index,
 mongo, and backup-community) has the right branch or tag checked out.  For
 example, to build the head of the 1.1 branch, you can do this:
 
+ $ (cd /vagrant)
  $ (cd ft-index; git checkout releases/tokumx-1.1)
  $ (cd backup-community; git checkout releases/tokumx-1.1)
  $ (cd mongo; git checkout releases/tokumx-1.1)
