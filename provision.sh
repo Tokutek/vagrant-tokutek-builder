@@ -23,7 +23,6 @@ apt-get install -y \
     libaio-dev \
     libdb-dev \
     libncurses5-dev \
-    scons \
     valgrind \
     zlib1g-dev
 
@@ -55,10 +54,13 @@ function git_get {
 }
 
 git_get mongo
-git_get backup-community
-git_get ft-index
-pushd ft-index/third_party
-git_get jemalloc
+pushd mongo/src/third_party
+  git_get backup-community
+  ln -s backup-community/backup .
+  git_get ft-index
+  pushd ft-index/third_party
+    git_get jemalloc
+  popd
 popd
 
 git_get ft-engine
@@ -70,22 +72,10 @@ set -e
 
 . \$HOME/.bash_profile
 
-mkdir -p backup-community/backup/opt
-pushd backup-community/backup/opt
+mkdir -p mongo/opt
+pushd mongo/opt
 cmake \
     -D CMAKE_BUILD_TYPE=Release \
-    -D CMAKE_INSTALL_PREFIX=~/mongo/src/third_party/tokubackup \
-    -D HOT_BACKUP_LIBNAME=HotBackup \
-    -D BACKUP_HAS_PARENT=OFF \
-    ..
-cmake --build . --target install
-popd
-
-mkdir -p ft-index/opt
-pushd ft-index/opt
-cmake \
-    -D CMAKE_BUILD_TYPE=Release \
-    -D CMAKE_INSTALL_PREFIX=~/mongo/src/third_party/tokukv \
     -D BUILD_TESTING=OFF \
     -D USE_VALGRIND=OFF \
     -D USE_BDB=OFF \
@@ -95,15 +85,12 @@ cmake \
     -D USE_CSCOPE=OFF \
     -D USE_GTAGS=OFF \
     ..
-cmake --build . --target install
+make package
 popd
-
-cd mongo
-scons --cc=gcc-4.7 --cxx=g++-4.7 --mute --release dist
 EOF
 chmod +x build-tokumx.sh
 
-chown vagrant -R mongo backup-community ft-index ft-engine build-tokumx.sh .bash_profile
+chown vagrant -R mongo ft-engine build-tokumx.sh .bash_profile
 
 touch /etc/motd.tail
 if ! grep -q Tokutek /etc/motd.tail; then
@@ -114,11 +101,11 @@ Welcome to the Tokutek build machine!
 
 To build a TokuMX release, please make sure each repository (ft-index,
 mongo, and backup-community) has the right branch or tag checked out.  For
-example, to build the head of the 1.1 branch, you can do this:
+example, to build the head of the 1.5 branch, you can do this:
 
- $ (cd ft-index; git checkout releases/tokumx-1.1)
- $ (cd backup-community; git checkout releases/tokumx-1.1)
- $ (cd mongo; git checkout releases/tokumx-1.1)
+ $ (cd mongo/src/third_party/ft-index; git checkout releases/tokumx-1.5)
+ $ (cd mongo/src/third_party/backup-community; git checkout releases/tokumx-1.5)
+ $ (cd mongo; git checkout releases/tokumx-1.5)
 
 Then, just run './build-tokumx.sh'.  It'll build everything with the right
 optimizations.
